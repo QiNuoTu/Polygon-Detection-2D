@@ -9,8 +9,8 @@ A polygon detection toolkit suitable for beginners, providing pure algorithm imp
 
 Please take note, this kit uses unusual syntax and you cannot directly copy and use it in any language. You must transcribe it into the language you are using. In this process, you can also understand the detection principle of points and lines, and you can have fun expanding it yourself.
 
-        请注意，在这个代码下array数组已1开头而并非传统的0开头，翻译到其他代码时注意修改
+请注意，在这个代码下array数组已1开头而并非传统的0开头，翻译到其他代码时注意修改
         
-        Please note, in this code, the array starts at 1 instead of the traditional 0. Be aware of this when translating to other languages.
+Please note, in this code, the array starts at 1 instead of the traditional 0. Be aware of this when translating to other languages.
         
-        o(*￣▽￣*)ブ
+o(*￣▽￣*)ブ
