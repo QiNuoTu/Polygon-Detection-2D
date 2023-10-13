@@ -1,0 +1,225 @@
+
+function:CreatePolyRECT.Double , 创建旋转矩形
+parameter:center.Vertex_F
+parameter:width.Double 
+parameter:height.Double 
+parameter:angle.Double 
+parameter:polygon.Vertex_F:&:array
+variables.Local:width_.Double 
+variables.Local:height_.Double 
+variables.Local:cross.Double 
+
+Array.Redefine (polygon, false, 4)
+width_ ＝ width ÷ 2
+height_ ＝ height ÷ 2
+polygon [1].X ＝ center.X － width_
+polygon [1].Y ＝ center.Y － height_
+polygon [2].X ＝ center.X ＋ width_
+polygon [2].Y ＝ center.Y － height_
+polygon [3].X ＝ center.X ＋ width_
+polygon [3].Y ＝ center.Y ＋ height_
+polygon [4].X ＝ center.X － width_
+polygon [4].Y ＝ center.Y ＋ height_
+RotatePoint (polygon [1], center, angle)
+RotatePoint (polygon [2], center, angle)
+RotatePoint (polygon [3], center, angle)
+RotatePoint (polygon [4], center, angle)
+cross ＝ cross2 (polygon [1], polygon [2])
+cross ＝ cross ＋ cross2 (polygon [2], polygon [3])
+cross ＝ cross ＋ cross2 (polygon [3], polygon [4])
+cross ＝ cross ＋ cross2 (polygon [4], polygon [1])
+return (absolute (cross) × 0.5)
+
+function:CreatePolyELLI.Double , 创建旋转椭圆
+parameter:center.Vertex_F
+parameter:radiusX.Double 
+parameter:radiusY.Double 
+parameter:angle.Double 
+parameter:polygon.Vertex_F:&:array
+variables.Local:Edges.integer
+variables.Local:i.integer
+variables.Local:alfa.Double 
+variables.Local:alfas.Double 
+variables.Local:YF.Double 
+variables.Local:XF.Double 
+variables.Local:sinAngle.Double 
+variables.Local:cosAngle.Double 
+variables.Local:angle_.Double 
+variables.Local:X.Double 
+variables.Local:Y.Double 
+variables.Local:Area.Double 
+
+Edges ＝ 2 × #pi × min (radiusX, radiusY) ÷ 2
+Array.Redefine (polygon, false, Edges)
+alfa ＝ 2 × #pi ÷ Edges
+angle_ ＝ angle × #pi ÷ 180
+sinAngle ＝ sin (angle_)
+cosAngle ＝ cos (angle_)
+circulate.start (Edges, i)
+    alfas ＝ alfa × i － alfa ÷ 2
+    XF ＝ center.X ＋ radiusX × sin (alfas) － center.X
+    YF ＝ center.Y － radiusY × cos (alfas) － center.Y
+    X ＝ XF × cosAngle － YF × sinAngle ＋ center.X
+    Y ＝ XF × sinAngle ＋ YF × cosAngle ＋ center.Y
+    polygon [i].X ＝ X
+    polygon [i].Y ＝ Y
+    If (i ＝ 1)
+        XF ＝ X
+        YF ＝ Y
+        circulate.JumpEnd ()
+     
+    Area ＝ Area ＋ X × YF － XF × Y
+    XF ＝ X
+    YF ＝ Y
+circulate.end ()
+X ＝ polygon [1].X
+Y ＝ polygon [1].Y
+return (absolute (Area ＋ X × YF － XF × Y) × 0.5)
+
+function:CreatePolyINCS.Double , 创建旋转内接多边形
+parameter:center.Vertex_F
+parameter:Radius.Double 
+parameter:angle.Double 
+parameter:Edges.Double 
+parameter:polygon.Vertex_F:&:array
+variables.Local:i.integer
+variables.Local:alfa.Double 
+variables.Local:alfas.Double 
+variables.Local:X.Double 
+variables.Local:Y.Double 
+variables.Local:XM.Double 
+variables.Local:YM.Double 
+variables.Local:sinA.Double 
+variables.Local:cosA.Double 
+variables.Local:angle_.Double 
+variables.Local:YF.Double 
+variables.Local:XF.Double 
+variables.Local:Area.Double 
+
+Array.Redefine (polygon, false, Edges)
+alfa ＝ 2 × #pi ÷ Edges
+angle_ ＝ angle × #pi ÷ 180
+sinA ＝ sin (angle_)
+cosA ＝ cos (angle_)
+circulate.start (Edges, i)
+    alfas ＝ alfa × i － alfa ÷ 2
+    XM ＝ center.X ＋ Radius × sin (alfas) － center.X
+    YM ＝ center.Y － Radius × cos (alfas) － center.Y
+    X ＝ XM × cosA － YM × sinA ＋ center.X
+    Y ＝ XM × sinA ＋ YM × cosA ＋ center.Y
+    polygon [i].X ＝ X
+    polygon [i].Y ＝ Y
+    If (i ＝ 1)
+        XF ＝ X
+        YF ＝ Y
+        circulate.JumpEnd ()
+     
+    Area ＝ Area ＋ X × YF － XF × Y
+    XF ＝ X
+    YF ＝ Y
+circulate.end ()
+X ＝ polygon [1].X
+Y ＝ polygon [1].Y
+return (absolute (Area ＋ X × YF － XF × Y) × 0.5)
+
+function:CreatePolyDEFO.Double , 创建变形多边形
+parameter:center.Vertex_F
+parameter:RadiusX.Double 
+parameter:RadiusY.Double 
+parameter:angle.Double 
+parameter:Edges.Double 
+parameter:polygon.Vertex_F:&:array
+variables.Local:i.integer
+variables.Local:alfa.Double 
+variables.Local:alfas.Double 
+variables.Local:YF.Double 
+variables.Local:XF.Double 
+variables.Local:sinAngle.Double 
+variables.Local:cosAngle.Double 
+variables.Local:angle_.Double 
+variables.Local:X.Double 
+variables.Local:Y.Double 
+variables.Local:Area.Double 
+
+Array.Redefine (polygon, false, Edges)
+alfa ＝ 2 × #pi ÷ Edges
+angle_ ＝ angle × #pi ÷ 180
+sinAngle ＝ sin (angle_)
+cosAngle ＝ cos (angle_)
+circulate.start (Edges, i)
+    alfas ＝ alfa × i － alfa ÷ 2
+    XF ＝ center.X ＋ RadiusX × sin (alfas) － center.X
+    YF ＝ center.Y － RadiusY × cos (alfas) － center.Y
+    X ＝ XF × cosAngle － YF × sinAngle ＋ center.X
+    Y ＝ XF × sinAngle ＋ YF × cosAngle ＋ center.Y
+    polygon [i].X ＝ X
+    polygon [i].Y ＝ Y
+    If (i ＝ 1)
+        XF ＝ X
+        YF ＝ Y
+        circulate.JumpEnd ()
+     
+    Area ＝ Area ＋ X × YF － XF × Y
+    XF ＝ X
+    YF ＝ Y
+circulate.end ()
+X ＝ polygon [1].X
+Y ＝ polygon [1].Y
+return (absolute (Area ＋ X × YF － XF × Y) × 0.5)
+
+function:CreatePolyARC.Double , 创建圆弧多边形
+parameter:center.Vertex_F
+parameter:radius.Double 
+parameter:startAngle.Double 
+parameter:endAngle.Double 
+parameter:arc.Vertex_F:&:array
+variables.Local:Edges.integer
+variables.Local:ang.Double 
+variables.Local:anglePerStep.Double 
+variables.Local:i.integer
+
+Edges ＝ (radius ＋ (endAngle － startAngle) ÷ 2) ÷ 2
+Array.Redefine (arc, false, Edges ＋ 1)
+ang ＝ startAngle × #pi ÷ 180
+anglePerStep ＝ (endAngle － startAngle) × #pi ÷ 180 ÷ (Edges － 1)
+circulate.start (Edges, i)
+    arc [i].X ＝ center.X ＋ radius × cos (ang)
+    arc [i].Y ＝ center.Y － radius × sin (ang)
+    ang ＝ ang ＋ anglePerStep
+circulate.end ()
+arc [i] ＝ center
+
+function:CreatePolyEPARC.Double , 创建旋转椭弧多边形
+parameter:center.Vertex_F
+parameter:radiusX.Double 
+parameter:radiusY.Double 
+parameter:startAngle.Double 
+parameter:endAngle.Double 
+parameter:angle.Double 
+parameter:arc.Vertex_F:&:array
+variables.Local:Edges.integer
+variables.Local:ang.Double 
+variables.Local:anglePerStep.Double 
+variables.Local:i.integer
+variables.Local:angle_.Double 
+variables.Local:sinAngle.Double 
+variables.Local:cosAngle.Double 
+variables.Local:x.Double 
+variables.Local:y.Double 
+
+Edges ＝ (min (radiusX, radiusY) ＋ (endAngle － startAngle) ÷ 2) ÷ 2
+Array.Redefine (arc, false, Edges ＋ 1)
+ang ＝ startAngle × #pi ÷ 180
+angle_ ＝ angle × #pi ÷ 180
+sinAngle ＝ sin (angle_)
+cosAngle ＝ cos (angle_)
+anglePerStep ＝ (endAngle － startAngle) × #pi ÷ 180 ÷ (Edges － 1)
+circulate.start (Edges, i)
+    x ＝ center.X ＋ radiusX × cos (ang) － center.X
+    y ＝ center.Y － radiusY × sin (ang) － center.Y
+    arc [i].X ＝ x × cosAngle － y × sinAngle ＋ center.X
+    arc [i].Y ＝ x × sinAngle ＋ y × cosAngle ＋ center.Y
+    ang ＝ ang ＋ anglePerStep
+circulate.end ()
+arc [i] ＝ center
+
