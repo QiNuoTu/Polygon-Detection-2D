@@ -1,0 +1,219 @@
+function:ToRadian.Decimal ，角度到弧度
+parameter:Angles.Decimal
+
+return (Angles × #pi ÷ 180)
+
+function:ToAngle.Decimal ，弧度到角度
+parameter:radian.Decimal
+
+return (radian × 180 ÷ #pi)
+
+function:PointLineDistance.Double , 点到直线的距离
+parameter:PX1.Double 
+parameter:PY1.Double 
+parameter:LX2.Double 
+parameter:LY2.Double 
+parameter:LX3.Double 
+parameter:LY3.Double 
+variables.Local:Y.Double 
+variables.Local:X.Double 
+variables.Local:Z.Double 
+
+Y ＝ LY3 － LY2
+X ＝ LX2 － LX3
+Z ＝ LX3 × LY2 － LX2 × LY3
+return (absolute (Y × PX1 ＋ X × PY1 ＋ Z) ÷ sqrt (Y × Y ＋ X × X))
+
+function:ReverAngle.Double , 反向角度
+parameter:angle.Double 
+
+return ((angle ＋ 180) ％ 360)
+
+function:RotatePoint, , 点绕点旋转
+parameter:p.Vertex_F:&
+parameter:center.Vertex_F
+parameter:angle.Double 
+variables.Local:y.Double 
+variables.Local:x.Double 
+variables.Local:sinAngle.Double 
+variables.Local:cosAngle.Double 
+variables.Local:angle_.Double 
+
+x ＝ p.X － center.X
+y ＝ p.Y － center.Y
+angle_ ＝ angle × #pi ÷ 180
+sinAngle ＝ sin (angle_)
+cosAngle ＝ cos (angle_)
+p.X ＝ x × cosAngle － y × sinAngle ＋ center.X
+p.Y ＝ x × sinAngle ＋ y × cosAngle ＋ center.Y
+
+function:isIntersectVertex.Boole , 两条线是否相交
+parameter:lineStar.Vertex_F
+parameter:lineEnd.Vertex_F
+parameter:edgeStar.Vertex_F
+parameter:edgeEnd.Vertex_F
+variables.Local:c1.Double 
+variables.Local:c2.Double 
+variables.Local:c3.Double 
+variables.Local:c4.Double 
+
+c1 ＝ (lineEnd.X － lineStar.X) × (edgeStar.Y － lineStar.Y) － (edgeStar.X － lineStar.X) × (lineEnd.Y － lineStar.Y)
+c2 ＝ (lineEnd.X － lineStar.X) × (edgeEnd.Y － lineStar.Y) － (edgeEnd.X － lineStar.X) × (lineEnd.Y － lineStar.Y)
+c3 ＝ (edgeEnd.X － edgeStar.X) × (lineStar.Y － edgeStar.Y) － (lineStar.X － edgeStar.X) × (edgeEnd.Y － edgeStar.Y)
+c4 ＝ (edgeEnd.X － edgeStar.X) × (lineEnd.Y － edgeStar.Y) － (lineEnd.X － edgeStar.X) × (edgeEnd.Y － edgeStar.Y)
+If (c1 × c2 ＜ 0 and c3 × c4 ＜ 0)
+    return (true)
+ 
+return (false)
+
+function:findAngle.Double , 平面两点角度
+parameter:A.Vertex_F
+parameter:B.Vertex_F
+variables.Local:dy.Double 
+variables.Local:dx.Double 
+variables.Local:_angle.Double 
+variables.Local:radian.Double 
+
+dx ＝ B.X － A.X
+dy ＝ B.Y － A.Y
+radian ＝ arctan (absolute (dy) ÷ absolute (dx)) × 180 ÷ #pi
+judgment.start (dy ≥ 0 and dx ≥ 0)
+    _angle ＝ radian
+judgment.Otherwise (dy ≥ 0 and dx ＜ 0)
+    _angle ＝ 180 － radian
+judgment.Otherwise (dy ＜ 0 and dx ≤ 0)
+    _angle ＝ 180 ＋ radian
+judgment.Otherwise (dy ≤ 0 and dx ＞ 0)
+    _angle ＝ 360 － radian
+judgment.Default
+    _angle ＝ 0
+judgment.OtherwiseEnd
+return (_angle)
+
+function:EmitVertex.Vertex_F , 发射一个点
+parameter:center.Vertex_F
+parameter:angle.Double 
+parameter:length.Double 
+variables.Local:Vertex.Vertex_F
+variables.Local:radian.Double 
+
+radian ＝ angle × #pi ÷ 180
+Vertex.X ＝ center.X ＋ length × cos (radian)
+Vertex.Y ＝ center.Y ＋ length × sin (radian)
+return (Vertex)
+
+function:EmitLine.Line_F , 发射一条射线
+parameter:center.Vertex_F
+parameter:angle.Double 
+parameter:length.Double 
+variables.Local:Line.Line_F
+variables.Local:radian.Double 
+
+radian ＝ angle × #pi ÷ 180
+Line.start ＝ center
+Line.end.X ＝ center.X ＋ length × cos (radian)
+Line.end.Y ＝ center.Y ＋ length × sin (radian)
+return (Line)
+
+function:VertexEqual.Boole , 判断两个点是否相等
+parameter:V1.Vertex_F
+parameter:V2.Vertex_F
+
+return (V1.X ＝ V2.X and V1.Y ＝ V2.Y)
+
+function:cross3.Double , 求向量叉积
+parameter:A.Vertex_F
+parameter:B.Vertex_F
+parameter:C.Vertex_F
+
+return ((B.X － A.X) × (C.Y － A.Y) － (B.Y － A.Y) × (C.X － A.X))
+
+function:cross2.Double , 求叉积
+parameter:A.Vertex_F
+parameter:B.Vertex_F
+
+return (A.X × B.Y － B.X × A.Y)
+
+function:intersection.Boole , 求两线交点
+parameter:line.Line_F
+parameter:edge.Line_F
+parameter:cross.Vertex_F:&
+variables.Local:y1.Double 
+variables.Local:x1.Double 
+variables.Local:num1.Double 
+variables.Local:y2.Double 
+variables.Local:x2.Double 
+variables.Local:num2.Double 
+variables.Local:den.Double 
+
+y1 ＝ line.end.Y － line.start.Y
+x1 ＝ line.start.X － line.end.X
+y2 ＝ edge.end.Y － edge.start.Y
+x2 ＝ edge.start.X － edge.end.X
+num1 ＝ line.end.X × line.start.Y － line.start.X × line.end.Y
+num2 ＝ edge.end.X × edge.start.Y － edge.start.X × edge.end.Y
+den ＝ y1 × x2 － y2 × x1
+If (den ＝ 0)
+    return (false)
+ 
+cross.X ＝ (num2 × x1 － num1 × x2) ÷ den
+cross.Y ＝ (num1 × y2 － num2 × y1) ÷ den
+return (true)
+
+function:isIntersect.Boole , 判断两条线段是否相交
+parameter:line.Line_F
+parameter:edge.Line_F
+variables.Local:c1.Double 
+variables.Local:c2.Double 
+variables.Local:c3.Double 
+variables.Local:c4.Double 
+
+c1 ＝ (line.end.X － line.start.X) × (edge.start.Y － line.start.Y) － (line.end.Y － line.start.Y) × (edge.start.X － line.start.X)
+c2 ＝ (line.end.X － line.start.X) × (edge.end.Y － line.start.Y) － (line.end.Y － line.start.Y) × (edge.end.X － line.start.X)
+
+c3 ＝ (edge.end.X － edge.start.X) × (line.start.Y － edge.start.Y) － (edge.end.Y － edge.start.Y) × (line.start.X － edge.start.X)
+c4 ＝ (edge.end.X － edge.start.X) × (line.end.Y － edge.start.Y) － (edge.end.Y － edge.start.Y) × (line.end.X － edge.start.X)
+If (c1 × c2 ＜ 0 and c3 × c4 ＜ 0)
+    return (true)
+ 
+return (false)
+
+function:direction.integer , 点在线段的哪一侧,左侧(1)右侧(-1)点在线上(0)
+parameter:start.Vertex_F
+parameter:end.Vertex_F
+parameter:p.Vertex_F
+variables.Local:X.Double 
+
+X ＝ (p.X － start.X) × (end.Y － start.Y) － (end.X － start.X) × (p.Y － start.Y)
+judgment.start (X ＞ 0)
+    return (1)
+judgment.Otherwise (X ＜ 0)
+    return (-1)
+judgment.Default
+    return (0)
+judgment.Otherwise结束
+return (0)
+
+function:isClockwise.Boole ,  A、B、C 是否按照顺时针方向排列
+parameter:A.Vertex_F
+parameter:B.Vertex_F
+parameter:C.Vertex_F
+
+return ((B.X － A.X) × (C.Y － A.Y) － (B.Y － A.Y) × (C.X － A.X) ＞ 0)
+
+function:onLine.Boole , 在一条线上returntrue，否则returnfalse。
+parameter:dropA.Vertex_F
+parameter:dropB.Vertex_F
+parameter:dropC.Vertex_F
+
+return ((dropB.X － dropA.X) × (dropC.Y － dropA.Y) ＝ (dropB.Y － dropA.Y) × (dropC.X － dropA.X))
+
+function:distanceVertex.Double , 求两点距离
+parameter:p1.Vertex_F
+parameter:p2.Vertex_F
+variables.Local:dx.Double 
+variables.Local:dy.Double 
+
+dx ＝ p1.X － p2.X
+dy ＝ p1.Y － p2.Y
+return (sqrt (dx × dx ＋ dy × dy))
