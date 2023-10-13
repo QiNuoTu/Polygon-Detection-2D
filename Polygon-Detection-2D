@@ -1,0 +1,872 @@
+class:polygon, , , 多边形基础
+variables.overall:c_number.integer
+variables.overall:c_VertexGroup.Vertex_F.array
+variables.overall:c_Rectangular.RECT_F
+variables.overall:c_center.Vertex_F
+variables.overall:c_angle.Decimal
+variables.overall:c_area.Decimal
+variables.overall:c_Custom.Boole
+
+function:_initialize,自动函数
+
+
+function:_Destruction,自动函数
+
+Release ()
+
+function:SetAllData, , 内部函数，请不要乱用
+parameter:number.integer
+parameter:PointGroup.Vertex_F,:array
+parameter:Rectangular.RECT_F
+parameter:center.Vertex_F
+parameter:angle.Decimal
+parameter:area.Decimal
+parameter:Custom.Boole
+
+c_number ＝ number
+c_VertexGroup ＝ PointGroup
+c_Rectangular ＝ Rectangular
+c_center ＝ center
+c_angle ＝ angle
+c_area ＝ area
+c_Custom ＝ Custom
+
+function:GetAllData, , 内部函数，请不要乱用
+parameter:number.integer:&
+parameter:PointGroup.Vertex_F:&:array
+parameter:Rectangular.RECT_F:&
+parameter:center.Vertex_F:&
+parameter:angle.Decimal:&
+parameter:area.Decimal:&
+parameter:Custom.Boole:&
+
+number ＝ c_number
+PointGroup ＝ c_VertexGroup
+Rectangular ＝ c_Rectangular
+center ＝ c_center
+angle ＝ c_angle
+area ＝ c_area
+Custom ＝ c_Custom
+
+function:Release, , Destruction
+
+c_Custom ＝ false
+continuous (0, c_area, c_number, c_angle, c_Rectangular.left, c_Rectangular.Top, c_Rectangular.right, c_Rectangular.bottom, c_center.X, c_center.Y)
+Array.Clear (c_VertexGroup)
+
+function:size.integer , 取出顶点数量
+
+return (c_number)
+
+function:start.Vertex_F , 取开始点
+
+return (c_VertexGroup [1])
+
+function:End.Vertex_F , 取结束点
+
+return (c_VertexGroup [c_number])
+
+function:Vertex.Vertex_F , 取顶点
+parameter:index.integer
+
+If (index ≤ 0)
+    return (c_VertexGroup [c_number])
+ 
+If (index ＞ c_number)
+    return (c_VertexGroup [1])
+ 
+return (c_VertexGroup [index])
+
+function:RECT.RECT_F , 取多边形边界框。
+
+return (c_Rectangular)
+
+function:Center.Vertex_F , 取中心
+
+return (c_center)
+
+function:StartCustom, , 开始自定义多边形
+
+c_Custom ＝ true
+continuous (0, c_area, c_number, c_angle, c_Rectangular.left, c_Rectangular.Top, c_Rectangular.right, c_Rectangular.bottom, c_center.X, c_center.Y)
+Array.Clear (c_VertexGroup)
+
+function:AddVertex, , 加入自定义点
+parameter:Vertex.Vertex_F
+
+If (c_Custom)
+    Array.join (c_VertexGroup, Vertex)
+ 
+
+
+function:EndCustom, , 结束自定义多边形
+variables.Local:i.integer
+variables.Local:X.Decimal
+variables.Local:Y.Decimal
+variables.Local:YF.Decimal
+variables.Local:XF.Decimal
+variables.Local:cross.Decimal
+variables.Local:XC.Decimal
+variables.Local:YC.Decimal
+variables.Local:area.Decimal
+
+c_number ＝ c_VertexGroup.length ()
+circulate.start (c_number, i)
+    X ＝ c_VertexGroup [i].X
+    Y ＝ c_VertexGroup [i].Y
+    If (i ＝ 1)
+        c_Rectangular.left ＝ X
+        c_Rectangular.Top ＝ Y
+        c_Rectangular.right ＝ X
+        c_Rectangular.bottom ＝ Y
+        XF ＝ X
+        YF ＝ Y
+        circulate.JumpEnd ()
+     
+    If (c_Rectangular.left ＞ X)
+        c_Rectangular.left ＝ X
+     
+    If (c_Rectangular.Top ＞ Y)
+        c_Rectangular.Top ＝ Y
+     
+    If (c_Rectangular.right ＜ X)
+        c_Rectangular.right ＝ X
+     
+    If (c_Rectangular.bottom ＜ Y)
+        c_Rectangular.bottom ＝ Y
+     
+    cross ＝ X × YF － XF × Y
+    XC ＝ XC ＋ (X ＋ XF) × cross
+    YC ＝ YC ＋ (Y ＋ YF) × cross
+    area ＝ area ＋ cross
+    XF ＝ X
+    YF ＝ Y
+circulate.end ()
+X ＝ c_VertexGroup [1].X
+Y ＝ c_VertexGroup [1].Y
+cross ＝ X × YF － XF × Y
+XC ＝ XC ＋ (X ＋ XF) × cross
+YC ＝ YC ＋ (Y ＋ YF) × cross
+area ＝ absolute (area ＋ cross) × 0.5
+c_center.X ＝ XC ÷ (6 × area)
+c_center.Y ＝ YC ÷ (6 × area)
+c_area ＝ area
+c_angle ＝ 0
+c_Rectangular.right ＝ c_Rectangular.right ＋ 1
+c_Rectangular.bottom ＝ c_Rectangular.bottom ＋ 1
+c_Custom ＝ false
+
+function:PointCollision.Boole , 判断点p是否在多边形内
+parameter:p.Vertex_F
+variables.Local:count.integer
+variables.Local:i.integer
+variables.Local:A.Vertex_F
+variables.Local:B.Vertex_F
+variables.Local:X.Decimal
+
+If (p.X ＞ c_Rectangular.left and p.X ＜ c_Rectangular.right and p.Y ＞ c_Rectangular.Top and p.Y ＜ c_Rectangular.bottom)
+    circulate.start (c_number, i)
+        A ＝ c_VertexGroup [i]
+        if (i ＝ c_number)
+            B ＝ c_VertexGroup [1]
+        if.conj
+            B ＝ c_VertexGroup [i ＋ 1]
+         
+        If (A.Y ＜ p.Y and B.Y ≥ p.Y or B.Y ＜ p.Y and A.Y ≥ p.Y)
+            X ＝ (p.Y － A.Y) × (B.X － A.X) ÷ (B.Y － A.Y) ＋ A.X
+            If (X ＜ p.X)
+                count ＝ count ＋ 1
+             
+
+         
+
+    circulate.end ()
+    return (count ％ 2 ＝ 1)
+ 
+return (false)
+
+function:Collision.Boole , 判断多边形是否相交
+parameter:Poly, polygon
+variables.Local:Bn.integer
+variables.Local:i.integer
+variables.Local:j.integer
+variables.Local:Aframe.Line_F
+variables.Local:Bframe.Line_F
+variables.Local:RECT.RECT_F
+
+Bn ＝ Poly.size ()
+If (c_number ＜ 2 or Bn ＜ 2)
+    return (false)
+ 
+RECT ＝ Poly.RECT ()
+If (c_Rectangular.left ＜ RECT.right and c_Rectangular.right ＞ RECT.left and c_Rectangular.Top ＜ RECT.bottom and c_Rectangular.bottom ＞ RECT.Top)
+    circulate.start (c_number, i)
+        Aframe.start ＝ c_VertexGroup [i]
+        if (i ＝ c_number)
+            Aframe.end ＝ c_VertexGroup [1]
+        if.conj
+            Aframe.end ＝ c_VertexGroup [i ＋ 1]
+         
+        circulate.start (Bn, j)
+            Bframe.start ＝ Poly.Vertex (j)
+            if (j ＝ Bn)
+                Bframe.end ＝ Poly.start ()
+            if.conj
+                Bframe.end ＝ Poly.Vertex (j ＋ 1)
+             
+            If (isIntersect (Aframe, Bframe))
+                return (true)
+             
+
+        circulate.end ()
+    circulate.end ()
+    return (PointCollision (Poly.start ()) or Poly.PointCollision (c_VertexGroup [1]))
+ 
+return (false)
+
+
+class:polygon2D, polygon, , 二维实现
+variables.overall:c_number.integer
+variables.overall:c_VertexGroup.Vertex_F.array
+variables.overall:c_Rectangular, RECT_F
+variables.overall:c_center.Vertex_F
+variables.overall:c_angle.Decimal
+variables.overall:c_area.Decimal
+variables.overall:c_.Boole
+variables.overall:c_Custom.Boole
+variables.overall:c_ProporX.Decimal
+variables.overall:c_ProporY.Decimal
+variables.overall:c_Matrix, Matrix2X3_F
+
+function:_initialize,自动函数
+
+c_Matrix._1_1 ＝ 1
+c_Matrix._1_2 ＝ 0
+c_Matrix._1_3 ＝ 0
+c_Matrix._2_1 ＝ 0
+c_Matrix._2_2 ＝ 1
+c_Matrix._2_3 ＝ 0
+
+function:_Destruction,自动函数
+
+Release ()
+
+function:SetAllData, , 内部函数，请不要乱用
+parameter:number.integer
+parameter:PointGroup.Vertex_F,:array
+parameter:Rectangular.RECT_F
+parameter:center.Vertex_F
+parameter:angle.Decimal
+parameter:area.Decimal
+parameter:Custom.Boole
+
+c_number ＝ number
+c_VertexGroup ＝ PointGroup
+c_Rectangular ＝ Rectangular
+c_center ＝ center
+c_angle ＝ angle
+c_area ＝ area
+c_Custom ＝ Custom
+
+function:GetAllData, , 内部函数，请不要乱用
+parameter:number.integer:&
+parameter:PointGroup.Vertex_F:&:array
+parameter:Rectangular.RECT_F:&
+parameter:center.Vertex_F:&
+parameter:angle.Decimal:&
+parameter:area.Decimal:&
+parameter:Custom.Boole:&
+
+number ＝ c_number
+PointGroup ＝ c_VertexGroup
+Rectangular ＝ c_Rectangular
+center ＝ c_center
+angle ＝ c_angle
+area ＝ c_area
+Custom ＝ c_Custom
+
+function:Release, , Destruction
+
+c_Custom ＝ false
+continuous (0, c_area, c_number, c_angle, c_Rectangular.left, c_Rectangular.Top, c_Rectangular.right, c_Rectangular.bottom, c_center.X, c_center.Y)
+Array.Clear (c_VertexGroup)
+
+function:size.integer , 取出顶点数量
+
+return (c_number)
+
+function:start.Vertex_F , 取开始点
+
+return (c_VertexGroup [1])
+
+function:End.Vertex_F , 取结束点
+
+return (c_VertexGroup [c_number])
+
+function:Vertex.Vertex_F , 取顶点
+parameter:index.integer
+
+If (index ≤ 0)
+    return (c_VertexGroup [c_number])
+ 
+If (index ＞ c_number)
+    return (c_VertexGroup [1])
+ 
+return (c_VertexGroup [index])
+
+function:Set, , 置入对象
+parameter:polygon_, polygon2D:&
+
+polygon_.GetAllData (c_number, c_VertexGroup, c_Rectangular, c_center, c_angle, c_area, c_Custom)
+
+function:Get, polygon2D , 取回自身
+variables.Local:polygon_, polygon2D
+
+polygon_.SetAllData (c_number, c_VertexGroup, c_Rectangular, c_center, c_angle, c_area, c_Custom)
+return (polygon_)
+
+function:RECT, RECT_F , 取多边形边界框。
+
+return (c_Rectangular)
+
+function:Angle.Decimal , 取角度
+
+return (c_angle)
+
+function:Center.Vertex_F , 取中心
+
+return (c_center)
+
+function:Area.Decimal , 取面积
+
+return (c_area)
+
+function:Create, , 创建多边形
+parameter:center.Vertex_F
+parameter:RadiusX.Decimal
+parameter:RadiusY.Decimal
+parameter:angle.Decimal
+parameter:Edges.Decimal
+variables.Local:i.integer
+variables.Local:alfa.Decimal
+variables.Local:alfas.Decimal
+variables.Local:X.Decimal
+variables.Local:Y.Decimal
+variables.Local:XA.Decimal
+variables.Local:YA.Decimal
+variables.Local:sinA.Decimal
+variables.Local:cosA.Decimal
+variables.Local:radian.Decimal
+variables.Local:YF.Decimal
+variables.Local:XF.Decimal
+variables.Local:area.Decimal
+
+Array.Redefine (c_VertexGroup, false, Edges)
+c_angle ＝ angle
+c_number ＝ Edges
+c_center ＝ center
+alfa ＝ 2 × #pi ÷ Edges
+radian ＝ angle × #pi ÷ 180
+sinA ＝ sin (radian)
+cosA ＝ cos (radian)
+circulate.start (Edges, i)
+    alfas ＝ alfa × i － alfa ÷ 2
+    XA ＝ center.X ＋ RadiusX × sin (alfas) － center.X
+    YA ＝ center.Y － RadiusY × cos (alfas) － center.Y
+    X ＝ XA × cosA ＋ YA × sinA ＋ center.X
+    Y ＝ XA × sinA ＋ YA × cosA ＋ center.Y
+    c_VertexGroup [i].X ＝ X
+    c_VertexGroup [i].Y ＝ Y
+    If (i ＝ 1)
+        c_Rectangular.left ＝ X
+        c_Rectangular.Top ＝ Y
+        c_Rectangular.right ＝ X
+        c_Rectangular.bottom ＝ Y
+        XF ＝ X
+        YF ＝ Y
+        circulate.JumpEnd ()
+     
+    If (c_Rectangular.left ＞ X)
+        c_Rectangular.left ＝ X
+     
+    If (c_Rectangular.Top ＞ Y)
+        c_Rectangular.Top ＝ Y
+     
+    If (c_Rectangular.right ＜ X)
+        c_Rectangular.right ＝ X
+     
+    If (c_Rectangular.bottom ＜ Y)
+        c_Rectangular.bottom ＝ Y
+     
+    area ＝ area ＋ X × YF － XF × Y
+    XF ＝ X
+    YF ＝ Y
+circulate.end ()
+X ＝ c_VertexGroup [1].X
+Y ＝ c_VertexGroup [1].Y
+c_area ＝ absolute (area ＋ X × YF － XF × Y) × 0.5
+c_Rectangular.right ＝ c_Rectangular.right ＋ 1
+c_Rectangular.bottom ＝ c_Rectangular.bottom ＋ 1
+
+function:StartCustom, , 开始自定义多边形
+
+c_Custom ＝ true
+continuous (0, c_area, c_number, c_angle, c_Rectangular.left, c_Rectangular.Top, c_Rectangular.right, c_Rectangular.bottom, c_center.X, c_center.Y)
+Array.Clear (c_VertexGroup)
+
+function:AddVertex, , 加入自定义点
+parameter:Vertex.Vertex_F
+
+If (c_Custom)
+    Array.join (c_VertexGroup, Vertex)
+ 
+
+
+function:EndCustom, , 结束自定义多边形
+variables.Local:i.integer
+variables.Local:X.Decimal
+variables.Local:Y.Decimal
+variables.Local:YF.Decimal
+variables.Local:XF.Decimal
+variables.Local:cross.Decimal
+variables.Local:XC.Decimal
+variables.Local:YC.Decimal
+variables.Local:area.Decimal
+
+c_number ＝ c_VertexGroup.length ()
+circulate.start (c_number, i)
+    X ＝ c_VertexGroup [i].X
+    Y ＝ c_VertexGroup [i].Y
+    If (i ＝ 1)
+        c_Rectangular.left ＝ X
+        c_Rectangular.Top ＝ Y
+        c_Rectangular.right ＝ X
+        c_Rectangular.bottom ＝ Y
+        XF ＝ X
+        YF ＝ Y
+        circulate.JumpEnd ()
+     
+    If (c_Rectangular.left ＞ X)
+        c_Rectangular.left ＝ X
+     
+    If (c_Rectangular.Top ＞ Y)
+        c_Rectangular.Top ＝ Y
+     
+    If (c_Rectangular.right ＜ X)
+        c_Rectangular.right ＝ X
+     
+    If (c_Rectangular.bottom ＜ Y)
+        c_Rectangular.bottom ＝ Y
+     
+    cross ＝ X × YF － XF × Y
+    XC ＝ XC ＋ (X ＋ XF) × cross
+    YC ＝ YC ＋ (Y ＋ YF) × cross
+    area ＝ area ＋ cross
+    XF ＝ X
+    YF ＝ Y
+circulate.end ()
+X ＝ c_VertexGroup [1].X
+Y ＝ c_VertexGroup [1].Y
+cross ＝ X × YF － XF × Y
+XC ＝ XC ＋ (X ＋ XF) × cross
+YC ＝ YC ＋ (Y ＋ YF) × cross
+area ＝ absolute (area ＋ cross) × 0.5
+c_center.X ＝ XC ÷ (6 × area)
+c_center.Y ＝ YC ÷ (6 × area)
+c_area ＝ area
+c_angle ＝ 0
+c_Rectangular.right ＝ c_Rectangular.right ＋ 1
+c_Rectangular.bottom ＝ c_Rectangular.bottom ＋ 1
+c_Custom ＝ false
+
+function:Move_To, , 闪现到指定点
+parameter:center.Vertex_F
+
+c_Matrix._1_3 ＝ c_Matrix._1_3 ＋ center.X － c_center.X
+c_Matrix._2_3 ＝ c_Matrix._2_3 ＋ center.Y － c_center.Y
+
+function:Move, , 移动
+parameter:X.Decimal, , 距离X
+parameter:Y.Decimal, , 距离Y
+
+c_Matrix._1_3 ＝ c_Matrix._1_3 ＋ X
+c_Matrix._2_3 ＝ c_Matrix._2_3 ＋ Y
+
+function:AngMove, , 角度性移动
+parameter:angle.Decimal
+parameter:distance.Decimal
+variables.Local:angle_.Decimal
+
+angle_ ＝ angle × #pi ÷ 180
+c_Matrix._1_3 ＝ c_Matrix._1_3 ＋ distance × cos (angle_)
+c_Matrix._2_3 ＝ c_Matrix._2_3 ＋ distance × sin (angle_)
+
+function:TargetRotat, , 目标性旋转
+parameter:Target.Vertex_F
+parameter:correangle.Decimal
+variables.Local:dx.Decimal
+variables.Local:dy.Decimal
+variables.Local:targetAngle.Decimal
+variables.Local:currentAngle.Decimal
+variables.Local:cosDelta.Decimal
+variables.Local:deltaAngle.Decimal
+variables.Local:sinDelta.Decimal
+variables.Local:angle.Decimal
+variables.Local:corre.Decimal
+
+If (correangle ≠ 0)
+    corre ＝ correangle × #pi ÷ 180
+ 
+dx ＝ Target.X － c_center.X
+dy ＝ Target.Y － c_center.Y
+targetAngle ＝ atan2 (dx, dy)
+currentAngle ＝ c_angle × #pi ÷ 180
+deltaAngle ＝ targetAngle － currentAngle ＋ corre
+angle ＝ arctan (absolute (dy) ÷ absolute (dx)) × 180 ÷ #pi
+judgment.start (dy ≥ 0 and dx ≥ 0)
+    c_angle ＝ angle ＋ correangle
+judgment.Otherwise (dy ≥ 0 and dx ＜ 0)
+    c_angle ＝ 180 － angle ＋ correangle
+judgment.Otherwise (dy ＜ 0 and dx ≤ 0)
+    c_angle ＝ 180 ＋ angle ＋ correangle
+judgment.Otherwise (dy ≤ 0 and dx ＞ 0)
+    c_angle ＝ 360 － angle ＋ correangle
+judgment.Default
+    c_angle ＝ 0
+judgment.OtherwiseEnd
+If (c_angle ＞ 360)
+    c_angle ＝ c_angle － 360
+ 
+If (c_angle ＜ 0)
+    c_angle ＝ c_angle ＋ 360
+ 
+cosDelta ＝ cos (deltaAngle)
+sinDelta ＝ sin (deltaAngle)
+c_Matrix._1_1 ＝ cosDelta
+c_Matrix._1_2 ＝ －sinDelta
+c_Matrix._2_1 ＝ sinDelta
+c_Matrix._2_2 ＝ cosDelta
+
+function:Rotat, , 旋转
+parameter:angle.Decimal
+variables.Local:sinA.Decimal
+variables.Local:cosA.Decimal
+variables.Local:radian.Decimal
+variables.Local:Matrix, Matrix2X3_F
+
+c_angle ＝ c_angle ＋ angle
+If (c_angle ＞ 360)
+    c_angle ＝ c_angle － 360
+ 
+If (c_angle ＜ 0)
+    c_angle ＝ c_angle ＋ 360
+ 
+radian ＝ angle × #pi ÷ 180
+sinA ＝ sin (radian)
+cosA ＝ cos (radian)
+c_Matrix._1_1 ＝ cosA
+c_Matrix._1_2 ＝ －sinA
+c_Matrix._2_1 ＝ sinA
+c_Matrix._2_2 ＝ cosA
+
+function:Scale, , 缩放
+parameter:ProporX.Decimal
+parameter:ProporY.Decimal
+
+If (ProporX ＝ c_ProporX and ProporY ＝ c_ProporY)
+    return ()
+ 
+
+If (ProporX ＝ c_ProporX)
+    return ()
+ 
+c_ProporX ＝ ProporX
+c_Matrix._1_1 ＝ ProporX
+If (ProporY ＝ c_ProporY)
+    return ()
+ 
+c_ProporY ＝ ProporY
+c_Matrix._2_2 ＝ ProporY
+
+function:ExtContours.Boole , 将多边形进行轮廓提取
+parameter:LineGrupo.Line_F:&:array
+variables.Local:i.integer
+variables.Local:n.integer
+
+If (c_number ＜ 2)
+    return (false)
+ 
+Array.Clear (LineGrupo)
+circulate.start (c_number, i)
+    if (i ＝ c_number)
+        Array.join (LineGrupo, Line (c_VertexGroup [i], c_VertexGroup [1]))
+    if.conj
+        Array.join (LineGrupo, Line (c_VertexGroup [i], c_VertexGroup [i ＋ 1]))
+     
+
+circulate.end ()
+return (true)
+
+function:Corte.Boole , 沿着直线切掉右边，会return被切掉的部分。
+parameter:line.Line_F
+parameter:polyB, polygon:&
+variables.Local:poly.Vertex_F.array
+variables.Local:i.integer
+variables.Local:Point.Vertex_F
+variables.Local:sign.Byte
+
+polyB.Release ()
+If (PointCollision (line.start) or PointCollision (line.end))
+    return (false)
+ 
+polyB.StartCustom ()
+circulate.start (c_number, i)
+    If (sign ＝ 0)
+        Array.join (poly, c_VertexGroup [i])
+     
+    If (sign ＜ 2)
+        if (i ＝ c_number)
+            If (isIntersectVertex (line.start, line.end, c_VertexGroup [i], c_VertexGroup [1]))
+                If (intersection (line, Line (c_VertexGroup [i], c_VertexGroup [1]), Point))
+                    sign ＝ sign ＋ 1
+                    Array.join (poly, Point)
+                    polyB.AddVertex (Point)
+                 
+
+             
+
+        if.conj
+            If (isIntersectVertex (line.start, line.end, c_VertexGroup [i], c_VertexGroup [i ＋ 1]))
+                If (intersection (line, Line (c_VertexGroup [i], c_VertexGroup [i ＋ 1]), Point))
+                    sign ＝ sign ＋ 1
+                    Array.join (poly, Point)
+                    polyB.AddVertex (Point)
+                 
+
+             
+
+         
+
+     
+    If (sign ＝ 1)
+        polyB.AddVertex (c_VertexGroup [i ＋ 1])
+     
+    If (sign ＝ 2)
+        If (i ≠ c_number)
+            Array.join (poly, c_VertexGroup [i ＋ 1])
+         
+
+     
+
+circulate.end ()
+If (sign ＝ 2)
+    StartCustom ()
+    Array.Copy(c_VertexGroup, poly)
+    EndCustom ()
+    polyB.EndCustom ()
+    return (true)
+ 
+polyB.Release ()
+return (false)
+
+function:Split.Boole , 沿着直线把当前对象分为两半，分别return，自身保持原样
+parameter:line.Line_F
+parameter:polyA, polygon:&
+parameter:polyB, polygon:&
+variables.Local:i.integer
+variables.Local:Point.Vertex_F
+variables.Local:sign.Byte
+
+polyA.Release ()
+polyB.Release ()
+If (PointCollision (line.start) or PointCollision (line.end))
+    return (false)
+ 
+polyA.StartCustom ()
+polyB.StartCustom ()
+circulate.start (c_number, i)
+    If (sign ＝ 0)
+        polyB.AddVertex (c_VertexGroup [i])
+     
+    If (sign ＜ 2)
+        if (i ＝ c_number)
+            If (isIntersectVertex (line.start, line.end, c_VertexGroup [i], c_VertexGroup [1]))
+                intersection (line, Line (c_VertexGroup [i], c_VertexGroup [1]), Point)
+                sign ＝ sign ＋ 1
+                polyB.AddVertex (Point)
+                polyA.AddVertex (Point)
+             
+
+        if.conj
+            If (isIntersectVertex (line.start, line.end, c_VertexGroup [i], c_VertexGroup [i ＋ 1]))
+                intersection (line, Line (c_VertexGroup [i], c_VertexGroup [i ＋ 1]), Point)
+                sign ＝ sign ＋ 1
+                polyB.AddVertex (Point)
+                polyA.AddVertex (Point)
+             
+
+         
+
+     
+    If (sign ＝ 1)
+        polyA.AddVertex (c_VertexGroup [i ＋ 1])
+     
+    If (sign ＝ 2)
+        If (i ≠ c_number)
+            polyB.AddVertex (c_VertexGroup [i ＋ 1])
+         
+
+     
+
+circulate.end ()
+If (sign ＝ 2)
+    polyA.EndCustom ()
+    polyB.EndCustom ()
+    return (true)
+ 
+polyA.Release ()
+polyB.Release ()
+return (false)
+
+function:PointCollision.Boole , 判断点p是否在多边形内
+parameter:p.Vertex_F
+variables.Local:count.integer
+variables.Local:i.integer
+variables.Local:A.Vertex_F
+variables.Local:B.Vertex_F
+variables.Local:X.Decimal
+
+If (p.X ＞ c_Rectangular.left and p.X ＜ c_Rectangular.right and p.Y ＞ c_Rectangular.Top and p.Y ＜ c_Rectangular.bottom)
+    circulate.start (c_number, i)
+        A ＝ c_VertexGroup [i]
+        if (i ＝ c_number)
+            B ＝ c_VertexGroup [1]
+        if.conj
+            B ＝ c_VertexGroup [i ＋ 1]
+         
+        If (A.Y ＜ p.Y and B.Y ≥ p.Y or B.Y ＜ p.Y and A.Y ≥ p.Y)
+            X ＝ (p.Y － A.Y) × (B.X － A.X) ÷ (B.Y － A.Y) ＋ A.X
+            If (X ＜ p.X)
+                count ＝ count ＋ 1
+             
+
+         
+
+    circulate.end ()
+    return (count ％ 2 ＝ 1)
+ 
+return (false)
+
+function:Collision.Boole , 判断多边形是否相交
+parameter:Poly, polygon
+variables.Local:Bn.integer
+variables.Local:i.integer
+variables.Local:j.integer
+variables.Local:Aframe.Line_F
+variables.Local:Bframe.Line_F
+variables.Local:RECT.RECT_F
+
+Bn ＝ Poly.size ()
+If (c_number ＜ 2 or Bn ＜ 2)
+    return (false)
+ 
+RECT ＝ Poly.RECT ()
+If (c_Rectangular.left ＜ RECT.right and c_Rectangular.right ＞ RECT.left and c_Rectangular.Top ＜ RECT.bottom and c_Rectangular.bottom ＞ RECT.Top)
+    circulate.start (c_number, i)
+        Aframe.start ＝ c_VertexGroup [i]
+        if (i ＝ c_number)
+            Aframe.end ＝ c_VertexGroup [1]
+        if.conj
+            Aframe.end ＝ c_VertexGroup [i ＋ 1]
+         
+        circulate.start (Bn, j)
+            Bframe.start ＝ Poly.Vertex (j)
+            if (j ＝ Bn)
+                Bframe.end ＝ Poly.start ()
+            if.conj
+                Bframe.end ＝ Poly.Vertex (j ＋ 1)
+             
+            If (isIntersect (Aframe, Bframe))
+                return (true)
+             
+
+        circulate.end ()
+    circulate.end ()
+    return (PointCollision (Poly.start ()) or Poly.PointCollision (c_VertexGroup [1]))
+ 
+return (false)
+
+function:Multi, , 应用2X3矩阵
+parameter:Center.Vertex_F
+variables.Local:i.integer
+variables.Local:XF.Decimal
+variables.Local:YF.Decimal
+variables.Local:X.Decimal
+variables.Local:Y.Decimal
+variables.Local:area.Decimal
+variables.Local:XC.Decimal
+variables.Local:YC.Decimal
+
+If (empty (Center))
+    Center ＝ c_center
+ 
+circulate.start (c_number, i)
+    XF ＝ c_VertexGroup [i].X － Center.X
+    YF ＝ c_VertexGroup [i].Y － Center.Y
+    X ＝ Center.X ＋ c_Matrix._1_1 × XF ＋ c_Matrix._1_2 × YF ＋ c_Matrix._1_3
+    Y ＝ Center.Y ＋ c_Matrix._2_1 × XF ＋ c_Matrix._2_2 × YF ＋ c_Matrix._2_3
+    c_VertexGroup [i].X ＝ X
+    c_VertexGroup [i].Y ＝ Y
+    If (i ＝ 1)
+        XC ＝ X
+        YC ＝ Y
+        c_Rectangular.left ＝ X
+        c_Rectangular.Top ＝ Y
+        c_Rectangular.right ＝ X
+        c_Rectangular.bottom ＝ Y
+        circulate.JumpEnd ()
+     
+    If (c_Rectangular.left ＞ X)
+        c_Rectangular.left ＝ X
+     
+    If (c_Rectangular.Top ＞ Y)
+        c_Rectangular.Top ＝ Y
+     
+    If (c_Rectangular.right ＜ X)
+        c_Rectangular.right ＝ X
+     
+    If (c_Rectangular.bottom ＜ Y)
+        c_Rectangular.bottom ＝ Y
+     
+    area ＝ area ＋ X × YC － XC × Y
+    XC ＝ X
+    YC ＝ Y
+circulate.end ()
+X ＝ c_VertexGroup [1].X
+Y ＝ c_VertexGroup [1].Y
+c_area ＝ absolute (area ＋ X × YC － XC × Y) × 0.5
+c_Rectangular.right ＝ c_Rectangular.right ＋ 1
+c_Rectangular.bottom ＝ c_Rectangular.bottom ＋ 1
+c_center.X ＝ c_center.X ＋ c_Matrix._1_3
+c_center.Y ＝ c_center.Y ＋ c_Matrix._2_3
+c_Matrix._1_1 ＝ 1
+c_Matrix._1_2 ＝ 0
+c_Matrix._1_3 ＝ 0
+c_Matrix._2_1 ＝ 0
+c_Matrix._2_2 ＝ 1
+c_Matrix._2_3 ＝ 0
+
+function:Matrix2x3, 
+parameter:_1_1.Decimal
+parameter:_1_2.Decimal
+parameter:_1_3.Decimal
+parameter:_2_1.Decimal
+parameter:_2_2.Decimal
+parameter:_2_3.Decimal
+
+c_Matrix._1_1 ＝ _1_1
+c_Matrix._1_2 ＝ _1_2
+c_Matrix._1_3 ＝ _1_3
+c_Matrix._2_1 ＝ _2_1
+c_Matrix._2_2 ＝ _2_2
+c_Matrix._2_3 ＝ _2_3
