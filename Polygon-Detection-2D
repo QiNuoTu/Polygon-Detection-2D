@@ -796,6 +796,44 @@ If (c_Rectangular.left ＜ RECT.right and c_Rectangular.right ＞ RECT.left and 
  
 return (false)
 
+function:Incorporate.Boole , 判断多边形是否包含在内
+parameter:Poly, polygon
+variables.Local:Bn.integer
+variables.Local:i.integer
+variables.Local:j.integer
+variables.Local:Aframe.Line_F
+variables.Local:Bframe.Line_F
+variables.Local:RECT.RECT_F
+
+Bn ＝ Poly.size ()
+If (c_number ＜ 2 or Bn ＜ 2)
+    return (false)
+ 
+RECT ＝ Poly.RECT ()
+If (c_Rectangular.left ＜ RECT.right and c_Rectangular.right ＞ RECT.left and c_Rectangular.Top ＜ RECT.bottom and c_Rectangular.bottom ＞ RECT.Top)
+    circulate.start (c_number, i)
+        Aframe.start ＝ c_VertexGroup [i]
+        if (i ＝ c_number)
+            Aframe.end ＝ c_VertexGroup [1]
+        if.conj
+            Aframe.end ＝ c_VertexGroup [i ＋ 1]
+         
+        circulate.start (Bn, j)
+            Bframe.start ＝ Poly.Vertex (j)
+            if (j ＝ Bn)
+                Bframe.end ＝ Poly.start ()
+            if.conj
+                Bframe.end ＝ Poly.Vertex (j ＋ 1)
+             
+            If (isIntersect (Aframe, Bframe))
+                return (true)
+             
+
+        circulate.end ()
+    circulate.end ()
+
+return (false)
+
 function:Multi, , 应用2X3矩阵
 parameter:Center.Vertex_F
 variables.Local:i.integer
@@ -856,7 +894,7 @@ c_Matrix._2_1 ＝ 0
 c_Matrix._2_2 ＝ 1
 c_Matrix._2_3 ＝ 0
 
-function:Matrix2x3, 
+function:Matrix2x3, , 重置2X3矩阵
 parameter:_1_1.Decimal
 parameter:_1_2.Decimal
 parameter:_1_3.Decimal
